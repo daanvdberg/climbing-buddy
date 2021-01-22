@@ -1,31 +1,35 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import dayjs from 'dayjs';
-import weekOfYear from 'dayjs/plugin/isoWeek';
-import jss from 'jss';
-import { ThemeProvider } from 'react-jss';
-import globalPlugin from 'jss-plugin-global';
-import composePlugin from 'jss-plugin-compose';
+import 'dayjs/locale/nl';
+import weekday from 'dayjs/plugin/weekday';
+import isoWeek from 'dayjs/plugin/isoWeek';
+import { CssBaseline,  } from '@material-ui/core';
+import { ThemeProvider, StylesProvider, jssPreset } from '@material-ui/core/styles';
+import { create } from 'jss';
+import compose from 'jss-plugin-compose';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
 import theme from './theme';
 
 dayjs().format();
-dayjs.extend(weekOfYear);
+dayjs.locale('nl');
+dayjs.extend(weekday);
+dayjs.extend(isoWeek);
 
-jss.use(globalPlugin());
-jss.use(composePlugin());
+// Add support for JSS Compose: https://cssinjs.org/jss-plugin-compose
+const jss = create({
+	plugins: [...jssPreset().plugins, compose()],
+});
 
 ReactDOM.render(
 	<React.StrictMode>
-		<ThemeProvider theme={theme}>
-			<App />
-		</ThemeProvider>
+		<StylesProvider jss={jss}>
+			<ThemeProvider theme={theme}>
+				<CssBaseline>
+					<App />
+				</CssBaseline>
+			</ThemeProvider>
+		</StylesProvider>
 	</React.StrictMode>,
 	document.getElementById('root')
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals(console.log);

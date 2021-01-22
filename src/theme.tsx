@@ -1,18 +1,21 @@
-const theme = {
+import { createMuiTheme } from "@material-ui/core/styles";
+
+const theme = createMuiTheme({
 	palette: {
 		common: {
 			black: '#000',
 			white: '#fff'
 		},
 		primary: {
-			light: '#fcb28d',
+			light: '#fab593',
 			main: '#fd8a4e',
-			dark: '#e55d19'
+			dark: '#cb5114',
+			contrastText: '#57314b'
 		},
 		secondary: {
-			light: '#57314b',
+			light: '#8d7686',
 			main: '#57314b',
-			dark: '#57314b'
+			dark: '#3e1230'
 		},
 		text: {
 			primary: '#434F6C',
@@ -20,11 +23,28 @@ const theme = {
 			disabled: '#caced9'
 		},
 		background: {
-			primary: '#e9e9e9',
-			light: '#fff'
+			default: '#e9e9e9'
+		},
+		status: {
+			0: '#f18e5b',
+			1: '#e8b94A',
+			2: '#4fac94'
 		}
 	},
 	typography: {
+		fontFamily: [
+			'Montserrat',
+			'-apple-system',
+			'BlinkMacSystemFont',
+			'"Segoe UI"',
+			'Roboto',
+			'"Helvetica Neue"',
+			'Arial',
+			'sans-serif',
+			'"Apple Color Emoji"',
+			'"Segoe UI Emoji"',
+			'"Segoe UI Symbol"',
+		].join(','),
 		h1: {
 			fontSize: 32
 		},
@@ -50,11 +70,10 @@ const theme = {
 			fontSize: 14
 		},
 		button: {
-			fontSize: 14
-		},
+			fontSize: 14,
+			fontWeight: 600
+		}
 	}
-}
-
-export type Theme = typeof theme;
+});
 
 export default theme;

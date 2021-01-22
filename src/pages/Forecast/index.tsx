@@ -1,54 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
-import { createUseStyles } from 'react-jss';
-import { Theme } from '../../theme';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import Date, { Status } from '../../components/Date';
 
-const useStyles = createUseStyles<Theme>((theme) => ({
-	root: {
-		display: 'grid',
-		gridTemplateColumns: '1fr 1fr 1fr',
-		gridGap: 14,
-		padding: [[15, 30]],
-		color: theme.palette.text.primary
-	},
-	week: {
-		display: 'grid',
-		gridGap: 14
-	},
-	weekNumber: {
-		textAlign: 'center',
-		fontSize: 18,
-		fontWeight: 800,
-		color: theme.palette.secondary.light
-	},
-	date: {
-		justifySelf: 'center',
-		display: 'flex',
-		flexDirection: 'column',
-		justifyContent: 'center',
-		alignItems: 'center',
-		width: 54,
-		height: 54,
-		border: `1px solid ${theme.palette.text.primary}`,
-		borderRadius: 8,
-		color: theme.palette.text.primary
-	},
-	disabledDate: {
-		composes: '$date',
-		pointerEvents: 'none',
-		border: `1px solid ${theme.palette.text.disabled}`,
-		color: theme.palette.text.disabled
-	},
-	weekDay: {
-		fontSize: 13,
-		fontWeight: 400
-	},
-	day: {
-		fontSize: 21,
-		fontWeight: 600,
-		lineHeight: 1.18
-	}
-}));
+const useStyles = makeStyles(({ spacing, palette }: Theme) =>
+	createStyles({
+		root: {
+			display: 'grid',
+			gridTemplateColumns: '1fr 1fr 1fr',
+			gridGap: 14,
+			padding: spacing(2, 4),
+			color: palette.text.primary
+		},
+		week: {
+			display: 'grid',
+			gridGap: 14,
+			'&:nth-child(1) $weekNumber': {
+				color: palette.secondary.main
+			}
+		},
+		weekNumber: {
+			textAlign: 'center',
+			fontSize: 18,
+			fontWeight: 800,
+			color: palette.secondary.light
+		}
+	})
+);
 
 function Forecast() {
 
@@ -58,19 +36,13 @@ function Forecast() {
 	const [dates, setDates] = useState<Dayjs[][]>([]);
 
 	useEffect(() => {
-		const currentDay = now.isoWeekday();
+		const currentDay = now.weekday();
 		const lastDay = now.add(14, 'day').day();
 		let parsedDates: Dayjs[] = [];
-
-		// Add placeholder dates starting from a previous Monday till now
-		if (currentDay > 1) {
+		
+		// Add placeholder dates starting from the last Monday till now
+		if (currentDay > 0) {
 			for (let i = 1; i < now.day(); i++) {
-				parsedDates = [now.subtract(i, 'day'), ...parsedDates];
-			}
-		}
-		// Additional loop due to Dayjs treating Sunday as day 0
-		if (currentDay === 0) {
-			for (let i = 1; i < 7; i++) {
 				parsedDates = [now.subtract(i, 'day'), ...parsedDates];
 			}
 		}
@@ -86,20 +58,13 @@ function Forecast() {
 				parsedDates = [...parsedDates, now.add((14 + i), 'day')];
 			}
 		}
-		// Additional statement due to Dayjs treating Sunday as day 0
-		if (lastDay === 0) {
-			parsedDates = [...parsedDates, now.add(14, 'day')];
-		}
 
 		const formattedDates: Dayjs[][] = [];
 
+		// Chunk up the dates to provide chunks by week
 		for (let i = 0; i < parsedDates.length; i += 7) {
 			formattedDates.push(parsedDates.slice(i, i + 7));
 		}
-
-		console.log(formattedDates);
-
-		console.log(dayjs('2021-01-01').isoWeekday());
 
 		setDates(formattedDates);
 
@@ -107,17 +72,12 @@ function Forecast() {
 
 	return (
 		<div className={c.root}>
-			{dates.map((week) => (
-				<div className={c.week}>
+			{dates.map((week, i) => (
+				<div className={c.week} key={i}>
 					<div className={c.weekNumber}>{week[0].isoWeek()}</div>
-					{week.map((e, i) => {
-						const disabled = e.isBefore(now) || e.isAfter(now.add(13, 'days'));
-						return (
-							<div className={disabled ? c.disabledDate : c.date} key={i}>
-								<div className={c.weekDay}>{e.format('ddd')}</div>
-								<div className={c.day}>{e.format('D')}</div>
-							</div>
-						)
+					{week.map((date) => {
+						const disabled = date.isBefore(now) || date.isAfter(now.add(13, 'days'));
+						return <Date date={date} disabled={disabled} status={Status.Average} key={date.unix()} />;
 					})}
 				</div>
 			))}
