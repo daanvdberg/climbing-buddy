@@ -5,17 +5,23 @@ const theme = {
 			white: '#fff'
 		},
 		primary: {
-			light: '#4F919A',
-			main: '#4F919A',
-			dark: '#4F919A'
+			light: '#fcb28d',
+			main: '#fd8a4e',
+			dark: '#e55d19'
+		},
+		secondary: {
+			light: '#57314b',
+			main: '#57314b',
+			dark: '#57314b'
 		},
 		text: {
 			primary: '#434F6C',
 			secondary: '#969CAC',
-			disabled: '#BEC6D8'
+			disabled: '#caced9'
 		},
 		background: {
-			primary: '#E9E9E9'
+			primary: '#e9e9e9',
+			light: '#fff'
 		}
 	},
 	typography: {
