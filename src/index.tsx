@@ -1,20 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import dayjs from 'dayjs';
-import advancedFormat from 'dayjs/plugin/advancedFormat';
-import weekOfYear from 'dayjs/plugin/weekOfYear';
+import weekOfYear from 'dayjs/plugin/isoWeek';
 import jss from 'jss';
 import { ThemeProvider } from 'react-jss';
 import globalPlugin from 'jss-plugin-global';
+import composePlugin from 'jss-plugin-compose';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import theme from './theme';
 
 dayjs().format();
-dayjs.extend(advancedFormat);
 dayjs.extend(weekOfYear);
 
 jss.use(globalPlugin());
+jss.use(composePlugin());
 
 ReactDOM.render(
 	<React.StrictMode>
