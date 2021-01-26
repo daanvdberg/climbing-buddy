@@ -10,6 +10,7 @@ import { create } from 'jss';
 import compose from 'jss-plugin-compose';
 import App from './App';
 import theme from './theme';
+import './database';
 
 dayjs().format();
 dayjs.locale('nl');

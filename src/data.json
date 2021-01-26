@@ -1,0 +1,17 @@
+{
+	"settings": {
+		"location": {
+			"longitude": "5.0241355",
+			"latitude": "52.1092881",
+			"location": "De Bilt",
+			"country": "NL"
+		},
+		"rain": false,
+		"temperature": {
+			"min": 10,
+			"max": 30
+		},
+		"wind": 4
+	},
+	"forecast": []
+}

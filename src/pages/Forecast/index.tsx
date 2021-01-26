@@ -4,9 +4,12 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { TweenLite, Power1 } from 'gsap';
 import Date, { Status } from '../../components/Date';
 import clsx from 'clsx';
+import { Box, Button, Grid, Typography } from '@material-ui/core';
+import Icon from '../../components/Icon';
+import { getForecast, getSettings } from '../../database';
 
 // @ts-ignore
-const useStyles = makeStyles(({ spacing, palette, shadows }: Theme) =>
+const useStyles = makeStyles(({ spacing, palette }: Theme) =>
 	createStyles({
 		root: {},
 		container: {
@@ -33,7 +36,6 @@ const useStyles = makeStyles(({ spacing, palette, shadows }: Theme) =>
 			visibility: 'hidden'
 		},
 		details: {
-			cursor: 'pointer',
 			position: 'absolute',
 			height: '100vh',
 			width: '100vw',
@@ -43,6 +45,31 @@ const useStyles = makeStyles(({ spacing, palette, shadows }: Theme) =>
 			backgroundColor: palette.background.paper,
 			// @ts-ignore
 			position: 'fixed'
+		},
+		inner: {
+			position: 'relative'
+		},
+		closeButton: {
+			position: 'absolute',
+			top: -54,
+			right: 0,
+			minWidth: 54,
+			width: 54,
+			height: 54
+		},
+		temp: {
+			fontSize: 40,
+			fontWeight: 600
+		},
+		tempMin: {
+			fontSize: 20,
+			fontWeight: 600
+		},
+		tempMax: {
+			marginLeft: 10,
+			color: palette.text.secondary,
+			fontSize: 20,
+			fontWeight: 600
 		}
 	})
 );
@@ -53,6 +80,8 @@ function Forecast() {
 
 	const [now] = useState<Dayjs>(dayjs());
 	const [dates, setDates] = useState<Dayjs[][]>([]);
+	const [location, setLocation] = useState<string>();
+	const [forecast, setForecast] = useState<[]>([]);
 
 	const datesRefs: RefObject<HTMLDivElement>[] = [];
 	const detailsRefs: RefObject<HTMLDivElement>[] = [];
@@ -92,27 +121,41 @@ function Forecast() {
 
 		setDates(formattedDates);
 
+		setForecast(getForecast());
+
+		const settings = getSettings();
+		setLocation(settings.location.location);
+
 	}, []);
 
-	const handleTriggerAnimation = (source: EventTarget, index: number, sourceType: 'date' | 'details') => {
+	const handleTriggerAnimation = (
+		source: RefObject<HTMLDivElement>,
+		index: number,
+		sourceType: 'date' | 'details'
+	) => {
 		const refs = sourceType === 'details' ? datesRefs : detailsRefs;
-		const target = (refs && refs.length && refs[index]) ? refs[index].current : null;
-		
-		console.log(source);
-		console.log(refs);
-		console.log(target);
-		
-		if (target && source) {
-			animateHero(source as HTMLDivElement, target, sourceType === 'details' ? false : true);
+		const fromHero = (source && source.current) ? source.current : null;
+		const toHero = (refs && refs.length && refs[index]) ? refs[index].current : null;
+
+		if (fromHero && toHero) {
+			animateHero(fromHero, toHero, sourceType === 'date');
 		}
-	}
+	};
 
 	const animateHero = (fromHero: HTMLDivElement, toHero: HTMLDivElement, forward = true) => {
+
+		console.log(forward);
+
+		const onStart = () => {
+			if (!forward) {
+				TweenLite.to(toHero.querySelector('.detailsInner'), 0.7, { visibility: 'visible' });
+			}
+		};
 
 		const onComplete = () => {
 			TweenLite.set(toHero, { visibility: 'visible' });
 			body.removeChild(clone);
-		}
+		};
 
 		const clone = fromHero.cloneNode(true);
 
@@ -124,6 +167,10 @@ function Forecast() {
 
 		body.appendChild(clone);
 
+		if (!forward) {
+			TweenLite.set((clone as HTMLDivElement).querySelector('.detailsInner'), { visibility: 'hidden' });
+		}
+
 		const style = {
 			x: to.left - from.left,
 			y: to.top - from.top,
@@ -132,11 +179,17 @@ function Forecast() {
 			padding: forward ? 24 : 0,
 			autoRound: false,
 			ease: Power1.easeOut,
-			onComplete
+			onComplete,
+			onStart
 		};
 
 		TweenLite.set(clone, from);
-		TweenLite.to(clone, 0.3, style);
+		if (forward) {
+			TweenLite.fromTo(clone, 0.7, { background: 'rgba(255,255,255,0)' }, { background: 'rgba(255,255,255,1)' });
+		} else {
+			TweenLite.fromTo(clone, 0.7, { background: 'rgba(255,255,255,1)' }, { background: 'rgba(255,255,255,0)' });
+		}
+		TweenLite.to(clone, 0.7, style);
 	};
 
 	const calculatePosition = (element: HTMLElement | HTMLDivElement) => {
@@ -180,7 +233,7 @@ function Forecast() {
 									key={date.unix()}
 									onClick={(e) => disabled
 										? e.preventDefault()
-										: handleTriggerAnimation(e.target, date.diff(now, 'day'), 'date')
+										: handleTriggerAnimation(newRef, date.diff(now, 'day'), 'date')
 									}
 								/>
 							);
@@ -189,22 +242,46 @@ function Forecast() {
 				))}
 			</div>
 			<div className={c.detailsContainer}>
-				{dates.map((week) => week.map((date) => {
+				{dates.map((week) => week.map((date, i) => {
 					if (date.isBefore(now) || date.isAfter(now.add(13, 'days'))) {
 						return null;
 					}
 					const newRef: RefObject<HTMLDivElement> = createRef();
 					detailsRefs.push(newRef);
+					const fc: { [key: string]: any } = forecast[i];
+					console.log(fc);
 					return (
-						<div
-							ref={newRef}
-							className={c.details}
-							key={date.unix()}
-							onClick={(e) =>
-								handleTriggerAnimation(e.target, date.diff(now, 'day'), 'details')}
-						>
-
+						<div ref={newRef} className={c.details} key={date.unix()}>
 							<Date date={date} status={Status.Average} key={date.unix()} />
+
+							<div className={clsx(['detailsInner', c.inner])}>
+								<Button
+									onClick={() =>
+										handleTriggerAnimation(newRef, date.diff(now, 'day'), 'details')}
+									className={c.closeButton}
+								>
+									<Icon name='close' />
+								</Button>
+								<div>
+									<Box textAlign='center' mb={2}>
+										<Typography variant='subtitle1'><b>{location}</b></Typography>
+										<Typography variant='subtitle2'>{fc.weather.description}</Typography>
+									</Box>
+
+									<Box mb={40} />
+									<Grid container justify='space-between' alignItems='center'>
+										<Grid item>
+											<Box className={c.temp}>{fc.temp}°C</Box>
+										</Grid>
+										<Grid item>
+											<Grid container alignItems='center'>
+												<Box className={c.tempMin}>{fc.app_max_temp}°C</Box>
+												<Box className={c.tempMax}>{fc.app_min_temp}°C</Box>
+											</Grid>
+										</Grid>
+									</Grid>
+								</div>
+							</div>
 						</div>
 					);
 				}))}

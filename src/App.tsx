@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Header from './components/Header';
+import { setForecast } from './database';
 import Forecast from './pages/Forecast';
 import Settings from './pages/Settings';
 
@@ -33,6 +34,21 @@ const useStyles = makeStyles(({ palette }: Theme) =>
 function App() {
 
 	const c = useStyles();
+
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		fetch(`${process.env.REACT_APP_WEATHER_URL}?key=${process.env.REACT_APP_WEATHER_KEY}&days=14&city=Vleuten&country=NL`)
+			.then((res) => res.json())
+			.then((res) => {
+				setForecast(res.data);
+				setLoading(false);
+			});
+	}, []);
+
+	if (loading) {
+		return <div>LOADING</div>
+	}
 
 	return (
 		<div className={c.root}>

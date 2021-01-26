@@ -13,9 +13,7 @@ const useStyles = makeStyles(({ palette }: Theme) =>
 			position: 'relative',
 			justifySelf: 'center',
 			width: 54,
-			height: 54,
-			backgroundColor: palette.background.paper,
-			borderRadius: 8
+			height: 54
 		},
 		disabledDate: {
 			composes: '$dateContainer',
