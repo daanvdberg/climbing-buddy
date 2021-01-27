@@ -1,10 +1,11 @@
+import { IconName } from '@fortawesome/fontawesome-svg-core';
 import React, { createRef, RefObject, useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
+import { Box, Button, Grid, Typography } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { TweenLite, Power1 } from 'gsap';
-import Date, { Status } from '../../components/Date';
 import clsx from 'clsx';
-import { Box, Button, Grid, Typography } from '@material-ui/core';
+import Date, { Status } from '../../components/Date';
 import Icon from '../../components/Icon';
 import { getForecast, getSettings } from '../../database';
 
@@ -73,6 +74,38 @@ const useStyles = makeStyles(({ spacing, palette }: Theme) =>
 		}
 	})
 );
+
+// TODO: Separate component
+const getWeatherIcon = (code: number) => {
+	console.log(code);
+	let icon: IconName;
+	switch (code) {
+		case 200: case 201: case 202: case 230: case 231: case 232: case 233:
+			icon = 'thunderstorm';
+			break;
+
+		case 500: case 501: case 511: case 520: case 900:
+			icon = 'cloud-showers';
+			break;
+
+		case 502: case 522:
+			icon = 'cloud-showers-heavy';
+			break;
+
+		case 801: case 802:
+			icon = 'cloud-sun';
+			break;
+
+		case 803: case 804:
+			icon = 'clouds';
+			break;
+
+		case 800:
+		default:
+			icon = 'sun';
+	}
+	return icon;
+}
 
 function Forecast() {
 
@@ -144,16 +177,12 @@ function Forecast() {
 
 	const animateHero = (fromHero: HTMLDivElement, toHero: HTMLDivElement, forward = true) => {
 
-		console.log(forward);
-
-		const onStart = () => {
-			if (!forward) {
-				TweenLite.to(toHero.querySelector('.detailsInner'), 0.7, { visibility: 'visible' });
-			}
-		};
-
 		const onComplete = () => {
 			TweenLite.set(toHero, { visibility: 'visible' });
+			if (forward) {
+				TweenLite.fromTo(toHero.querySelector('.detailsInner'), 2,
+					{ autoAlpha: 0 }, { autoAlpha: 1 });
+			}
 			body.removeChild(clone);
 		};
 
@@ -163,13 +192,10 @@ function Forecast() {
 		const to = calculatePosition(toHero);
 
 		TweenLite.set([fromHero, toHero], { visibility: 'hidden' });
+		TweenLite.set((clone as HTMLDivElement).querySelector('.detailsInner'), { visibility: 'hidden' });
 		TweenLite.set(clone, { position: 'absolute', margin: 0 });
 
 		body.appendChild(clone);
-
-		if (!forward) {
-			TweenLite.set((clone as HTMLDivElement).querySelector('.detailsInner'), { visibility: 'hidden' });
-		}
 
 		const style = {
 			x: to.left - from.left,
@@ -179,8 +205,7 @@ function Forecast() {
 			padding: forward ? 24 : 0,
 			autoRound: false,
 			ease: Power1.easeOut,
-			onComplete,
-			onStart
+			onComplete
 		};
 
 		TweenLite.set(clone, from);
@@ -260,15 +285,16 @@ function Forecast() {
 										handleTriggerAnimation(newRef, date.diff(now, 'day'), 'details')}
 									className={c.closeButton}
 								>
-									<Icon name='close' />
+									<Icon icon='times' size='lg' />
 								</Button>
 								<div>
 									<Box textAlign='center' mb={2}>
 										<Typography variant='subtitle1'><b>{location}</b></Typography>
 										<Typography variant='subtitle2'>{fc.weather.description}</Typography>
 									</Box>
-
-									<Box mb={40} />
+									<Box display='flex' justifyContent='center' alignItems='center' my={10}>
+										<Icon icon={getWeatherIcon(fc.weather.code)} size='8x' />
+									</Box>
 									<Grid container justify='space-between' alignItems='center'>
 										<Grid item>
 											<Box className={c.temp}>{fc.temp}°C</Box>
@@ -278,6 +304,26 @@ function Forecast() {
 												<Box className={c.tempMin}>{fc.app_max_temp}°C</Box>
 												<Box className={c.tempMax}>{fc.app_min_temp}°C</Box>
 											</Grid>
+										</Grid>
+									</Grid>
+									<Grid container>
+										<Grid item xs={4}>
+											<Box display='flex' flexDirection='column' alignItems='center'>
+												<Icon icon='wind' />
+												{fc.wind_spd.toFixed(0)}
+											</Box>
+										</Grid>
+										<Grid item xs={4}>
+											<Box display='flex' flexDirection='column' alignItems='center'>
+												<Icon icon='humidity' />
+												{fc.rh}%
+											</Box>
+										</Grid>
+										<Grid item xs={4}>
+											<Box display='flex' flexDirection='column' alignItems='center'>
+												<Icon icon='umbrella' />
+												{fc.pop}%
+											</Box>
 										</Grid>
 									</Grid>
 								</div>
@@ -292,3 +338,6 @@ function Forecast() {
 }
 
 export default Forecast;
+export {
+	getWeatherIcon
+}

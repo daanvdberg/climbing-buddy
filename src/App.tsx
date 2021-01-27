@@ -5,6 +5,7 @@ import Header from './components/Header';
 import { setForecast } from './database';
 import Forecast from './pages/Forecast';
 import Settings from './pages/Settings';
+import { CircularProgress } from '@material-ui/core';
 
 const useStyles = makeStyles(({ palette }: Theme) =>
 	createStyles({
@@ -27,7 +28,21 @@ const useStyles = makeStyles(({ palette }: Theme) =>
 				textDecoration: 'none'
 			}
 		},
-		root: {}
+		loading: {
+			position: 'fixed',
+			top: 0,
+			right: 0,
+			bottom: 0,
+			left: 0,
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center',
+			backgroundColor: palette.secondary.main
+		},
+		root: {},
+		footer: {
+			visibility: 'hidden'
+		}
 	})
 );
 
@@ -42,12 +57,16 @@ function App() {
 			.then((res) => res.json())
 			.then((res) => {
 				setForecast(res.data);
-				setLoading(false);
+				setTimeout(() => setLoading(false), 1000);
 			});
 	}, []);
 
 	if (loading) {
-		return <div>LOADING</div>
+		return (
+			<div className={c.loading}>
+				<CircularProgress />
+			</div>
+		)
 	}
 
 	return (
@@ -63,6 +82,10 @@ function App() {
 				</Routes>
 
 			</Router>
+
+			<div className={c.footer}>
+				Icons are courtesy of Nook Fulloption, Gregor Cresnar & Mark Roberts (by the Noun Project).
+			</div>
 
 		</div>
 	);

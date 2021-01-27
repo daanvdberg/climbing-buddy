@@ -1,6 +1,7 @@
+import { Box } from '@material-ui/core';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Icon from '../Icon';
 
 const useStyles = makeStyles(({ spacing, palette }: Theme) =>
@@ -39,6 +40,9 @@ const useStyles = makeStyles(({ spacing, palette }: Theme) =>
 		},
 		subTitle: {
 			fontWeight: 800
+		},
+		icon: {
+			color: palette.common.white
 		}
 	})
 );
@@ -47,24 +51,23 @@ function Header() {
 
 	const location = useLocation();
 
-	const { palette } = useTheme<Theme>();
 	const c = useStyles();
 
 	return (
 		<header className={c.header}>
 			<div className={c.left}>
 				<Link to='/settings' className={c.button}>
-					<Icon fill={palette.common.white} name='settings' />
+					<Icon className={c.icon} icon='sliders-v' size='lg' />
 				</Link>
 			</div>
 			<Link to='/' className={c.title}>
-				<Icon scale='s' fill={palette.common.white} name='climbing' />
-				<div>CLIMBING<span className={c.subTitle}>BUDDY</span></div>
+				<Icon size='sm' icon='monkey' />
+				<Box ml={1}>CLIMBING<span className={c.subTitle}>BUDDY</span></Box>
 			</Link>
 			<div className={c.right}>
 				{location.pathname !== '/' &&
 					<Link to='/' className={c.button}>
-						<Icon fill={palette.common.white} name='close' />
+						<Icon className={c.icon} icon='times' size='lg' />
 					</Link>
 				}
 			</div>
