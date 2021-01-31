@@ -1,37 +1,44 @@
 import { IconName } from '@fortawesome/fontawesome-svg-core';
+import { Palette, PaletteColor } from '@material-ui/core/styles/createPalette';
 import React, { createRef, RefObject, useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import { Box, Button, Grid, Typography } from '@material-ui/core';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { createStyles, fade, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import { TweenLite, Power1 } from 'gsap';
 import clsx from 'clsx';
 import Date, { Status } from '../../components/Date';
 import Icon from '../../components/Icon';
-import { getForecast, getSettings } from '../../database';
+import { getForecast, getSettings, Settings } from '../../database';
+import { msToBeaufort } from '../../utilities';
 
 // @ts-ignore
 const useStyles = makeStyles(({ spacing, palette }: Theme) =>
 	createStyles({
 		root: {},
 		container: {
-			display: 'grid',
-			gridTemplateColumns: '1fr 1fr 1fr',
-			gridGap: 14,
-			padding: spacing(2, 4),
+			display: 'flex',
+			justifyContent: 'center',
+			padding: spacing(3, 4, 2),
 			color: palette.text.primary
 		},
 		week: {
+			width: 'calc(100% / 3)',
 			display: 'grid',
 			gridGap: 14,
-			'&:nth-child(1) $weekNumber': {
-				color: palette.secondary.main
+			padding: spacing(2, 1.75, 3),
+			borderRadius: 6,
+			'&:nth-child(1)': {
+				backgroundColor: fade(palette.secondary.main, 0.06),
+				'& > $weekNumber': {
+					color: palette.secondary.main
+				}
 			}
 		},
 		weekNumber: {
 			textAlign: 'center',
 			fontSize: 18,
 			fontWeight: 800,
-			color: palette.secondary.light
+			color: fade(palette.secondary.main, 0.4)
 		},
 		detailsContainer: {
 			visibility: 'hidden'
@@ -58,62 +65,105 @@ const useStyles = makeStyles(({ spacing, palette }: Theme) =>
 			width: 54,
 			height: 54
 		},
+		wiContainer: {
+			position: 'relative',
+			width: `calc(100vw - ${2 * spacing(3)}px)`,
+			height: `calc(100vw - ${2 * spacing(3)}px)`,
+		},
+		wi: {
+			position: 'absolute',
+			top: '50%',
+			left: '50%',
+			transform: 'translate(-50%, -50%)',
+			zIndex: 1
+		},
+		wiDrop: {
+			position: 'absolute',
+			width: 120,
+			height: 120,
+			borderRadius: 120
+		},
 		temp: {
-			fontSize: 40,
+			fontSize: 50,
+			lineHeight: '42px',
 			fontWeight: 600
 		},
 		tempMin: {
-			fontSize: 20,
+			fontSize: 17,
 			fontWeight: 600
 		},
 		tempMax: {
-			marginLeft: 10,
+			marginLeft: spacing(2),
 			color: palette.text.secondary,
-			fontSize: 20,
+			fontSize: 17,
+			fontWeight: 600
+		},
+		icon: {
+			marginBottom: spacing(1),
+			color: palette.text.secondary
+		},
+		value: {
 			fontWeight: 600
 		}
 	})
 );
 
+const parseWeatherStatus = (settings: Settings, forecast: { [key: string]: any }): Status => {
+	const { temp } = forecast;
+	return Status.Average;
+}
+
 // TODO: Separate component
-const getWeatherIcon = (code: number) => {
-	console.log(code);
+const getWeatherStyle = (theme: Theme, code: number) => {
 	let icon: IconName;
+	let color: Palette['weatherColor'];
 	switch (code) {
 		case 200: case 201: case 202: case 230: case 231: case 232: case 233:
 			icon = 'thunderstorm';
+			color = theme.palette.weatherColor[0];
 			break;
 
 		case 500: case 501: case 511: case 520: case 900:
 			icon = 'cloud-showers';
+			color = theme.palette.weatherColor[3];
 			break;
 
 		case 502: case 522:
 			icon = 'cloud-showers-heavy';
+			color = theme.palette.weatherColor[4];
+			break;
+
+		case 600: case 601: case 602: case 610: case 621: case 622: case 623:
+			icon = 'cloud-snow';
+			color = theme.palette.weatherColor[5];
 			break;
 
 		case 801: case 802:
 			icon = 'cloud-sun';
+			color = theme.palette.weatherColor[1];
 			break;
 
 		case 803: case 804:
 			icon = 'clouds';
+			color = theme.palette.weatherColor[2];
 			break;
 
 		case 800:
 		default:
 			icon = 'sun';
+			color = theme.palette.weatherColor[0];
 	}
-	return icon;
+	return { color, icon };
 }
 
 function Forecast() {
 
+	const theme = useTheme();
 	const c = useStyles();
 
 	const [now] = useState<Dayjs>(dayjs());
 	const [dates, setDates] = useState<Dayjs[][]>([]);
-	const [location, setLocation] = useState<string>();
+	const [settings, setSettings] = useState<Settings>({ location: {} });
 	const [forecast, setForecast] = useState<[]>([]);
 
 	const datesRefs: RefObject<HTMLDivElement>[] = [];
@@ -122,13 +172,14 @@ function Forecast() {
 	const body = document.body;
 
 	useEffect(() => {
-		const currentDay = now.weekday();
-		const lastDay = now.add(14, 'day').day();
+
+		const currentDay = now.isoWeekday();
+		const lastDay = now.add(14, 'day').isoWeekday();
 		let parsedDates: Dayjs[] = [];
 
 		// Add placeholder dates starting from the last Monday till now
 		if (currentDay > 0) {
-			for (let i = 1; i < now.day(); i++) {
+			for (let i = 1; i < now.isoWeekday(); i++) {
 				parsedDates = [now.subtract(i, 'day'), ...parsedDates];
 			}
 		}
@@ -155,9 +206,7 @@ function Forecast() {
 		setDates(formattedDates);
 
 		setForecast(getForecast());
-
-		const settings = getSettings();
-		setLocation(settings.location.location);
+		setSettings(getSettings());
 
 	}, []);
 
@@ -210,11 +259,11 @@ function Forecast() {
 
 		TweenLite.set(clone, from);
 		if (forward) {
-			TweenLite.fromTo(clone, 0.7, { background: 'rgba(255,255,255,0)' }, { background: 'rgba(255,255,255,1)' });
+			TweenLite.fromTo(clone, 0.5, { background: 'rgba(255,255,255,0)' }, { background: 'rgba(255,255,255,1)' });
 		} else {
-			TweenLite.fromTo(clone, 0.7, { background: 'rgba(255,255,255,1)' }, { background: 'rgba(255,255,255,0)' });
+			TweenLite.fromTo(clone, 0.5, { background: 'rgba(255,255,255,1)' }, { background: 'rgba(255,255,255,0)' });
 		}
-		TweenLite.to(clone, 0.7, style);
+		TweenLite.to(clone, 0.5, style);
 	};
 
 	const calculatePosition = (element: HTMLElement | HTMLDivElement) => {
@@ -274,10 +323,23 @@ function Forecast() {
 					const newRef: RefObject<HTMLDivElement> = createRef();
 					detailsRefs.push(newRef);
 					const fc: { [key: string]: any } = forecast[i];
-					console.log(fc);
+					//console.log(fc);
+					const style = getWeatherStyle(theme, fc.weather.code);
+					// Positioning calculations for the colored circle behind the weather icon
+					const rx = Math.floor((window.innerWidth - 48) * 0.5);
+					const ry = Math.floor((window.innerWidth - 48) * 0.5);
+					const ra = 30 + (Math.random() * 20);
+					const pxr = Math.random();
+					const pyr = Math.random();
+					const wiPositioning = {
+						...(pxr < 0.5 ? { left: (rx + ra) + 'px' } : { right: (rx + ra) + 'px' }),
+						...(pyr < 0.5 ? { top: (ry + ra) + 'px' } : { bottom: (ry + ra) + 'px' }),
+						transform: `translate(${pxr < 0.5 ? '-50%' : '50%'}, ${pyr < 0.5 ? '-50%' : '50%'})`
+					};
+					const status = parseWeatherStatus(settings, fc);
 					return (
 						<div ref={newRef} className={c.details} key={date.unix()}>
-							<Date date={date} status={Status.Average} key={date.unix()} />
+							<Date date={date} status={status} key={date.unix()} />
 
 							<div className={clsx(['detailsInner', c.inner])}>
 								<Button
@@ -288,14 +350,21 @@ function Forecast() {
 									<Icon icon='times' size='lg' />
 								</Button>
 								<div>
-									<Box textAlign='center' mb={2}>
-										<Typography variant='subtitle1'><b>{location}</b></Typography>
+									<Box textAlign='center' pt={2}>
+										<Typography variant='subtitle1'><b>{settings.location.location}</b></Typography>
 										<Typography variant='subtitle2'>{fc.weather.description}</Typography>
 									</Box>
-									<Box display='flex' justifyContent='center' alignItems='center' my={10}>
-										<Icon icon={getWeatherIcon(fc.weather.code)} size='8x' />
+									<Box className={c.wiContainer}>
+										<Icon className={c.wi} icon={style.icon} size='9x' />
+										<Box
+											className={c.wiDrop}
+											bgcolor={style.color}
+											style={{
+												...wiPositioning
+											}}
+										/>
 									</Box>
-									<Grid container justify='space-between' alignItems='center'>
+									<Grid container justify='space-between' alignItems='flex-end'>
 										<Grid item>
 											<Box className={c.temp}>{fc.temp}°C</Box>
 										</Grid>
@@ -306,26 +375,28 @@ function Forecast() {
 											</Grid>
 										</Grid>
 									</Grid>
-									<Grid container>
-										<Grid item xs={4}>
-											<Box display='flex' flexDirection='column' alignItems='center'>
-												<Icon icon='wind' />
-												{fc.wind_spd.toFixed(0)}
-											</Box>
+									<Box mt={6}>
+										<Grid container>
+											<Grid item xs={4}>
+												<Box display='flex' flexDirection='column' alignItems='center'>
+													<Icon icon='wind' size='lg' className={c.icon} />
+													<Box className={c.value}>{msToBeaufort(fc.wind_spd)}</Box>
+												</Box>
+											</Grid>
+											<Grid item xs={4}>
+												<Box display='flex' flexDirection='column' alignItems='center'>
+													<Icon icon='humidity' size='lg' className={c.icon} />
+													<Box className={c.value}>{fc.rh}%</Box>
+												</Box>
+											</Grid>
+											<Grid item xs={4}>
+												<Box display='flex' flexDirection='column' alignItems='center'>
+													<Icon icon='umbrella' size='lg' className={c.icon} />
+													<Box className={c.value}>{fc.pop}%</Box>
+												</Box>
+											</Grid>
 										</Grid>
-										<Grid item xs={4}>
-											<Box display='flex' flexDirection='column' alignItems='center'>
-												<Icon icon='humidity' />
-												{fc.rh}%
-											</Box>
-										</Grid>
-										<Grid item xs={4}>
-											<Box display='flex' flexDirection='column' alignItems='center'>
-												<Icon icon='umbrella' />
-												{fc.pop}%
-											</Box>
-										</Grid>
-									</Grid>
+									</Box>
 								</div>
 							</div>
 						</div>
@@ -338,6 +409,3 @@ function Forecast() {
 }
 
 export default Forecast;
-export {
-	getWeatherIcon
-}

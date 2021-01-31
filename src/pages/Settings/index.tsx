@@ -11,9 +11,12 @@ import {
 } from '@material-ui/core';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 
-const useStyles = makeStyles(({ spacing }: Theme) =>
+const useStyles = makeStyles(({ palette, typography, spacing }: Theme) =>
 	createStyles({
 		root: {
+			display: 'flex',
+			flexDirection: 'column',
+			justifyContent: 'space-between',
 			padding: 20
 		},
 		form: {},
@@ -24,6 +27,16 @@ const useStyles = makeStyles(({ spacing }: Theme) =>
 		},
 		slider: {
 			padding: spacing(0, 1.75, 0, 2.25)
+		},
+		footer: {
+			position: 'absolute',
+			right: 0,
+			bottom: 0,
+			left: 0,
+			padding: spacing(2, 3),
+			textAlign: 'center',
+			fontSize: 12,
+			color: palette.text.secondary
 		}
 	})
 );
@@ -136,6 +149,10 @@ function Settings() {
 					</Grid>
 				</Grid>
 			</form>
+
+			<div className={c.footer}>
+				Icons are courtesy of Nook Fulloption, Gregor Cresnar & Mark Roberts (via the Noun Project).
+			</div>
 
 		</div>
 	);

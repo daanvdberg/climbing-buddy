@@ -25,6 +25,14 @@ const theme = createMuiTheme({
 		background: {
 			default: '#e9e9e9'
 		},
+		weatherColor: {
+			0: '#F0D6B5',
+			1: '#96D8EE',
+			2: '#F47E7E',
+			3: '#FAE596',
+			4: '#ADD4D3',
+			5: '#F1EBC7',
+		},
 		status: {
 			0: '#f18e5b',
 			1: '#e8b94A',

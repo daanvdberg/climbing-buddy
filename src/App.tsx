@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Header from './components/Header';
-import { setForecast } from './database';
+import { getSettings, setForecast } from './database';
 import Forecast from './pages/Forecast';
 import Settings from './pages/Settings';
 import { CircularProgress } from '@material-ui/core';
@@ -39,9 +39,8 @@ const useStyles = makeStyles(({ palette }: Theme) =>
 			alignItems: 'center',
 			backgroundColor: palette.secondary.main
 		},
-		root: {},
-		footer: {
-			visibility: 'hidden'
+		root: {
+			minHeight: '100vh'
 		}
 	})
 );
@@ -70,7 +69,7 @@ function App() {
 			<div className={c.loading}>
 				<CircularProgress />
 			</div>
-		)
+		);
 	}
 
 	return (
@@ -86,10 +85,6 @@ function App() {
 				</Routes>
 
 			</Router>
-
-			<div className={c.footer}>
-				Icons are courtesy of Nook Fulloption, Gregor Cresnar & Mark Roberts (by the Noun Project).
-			</div>
 
 		</div>
 	);
