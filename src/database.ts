@@ -24,9 +24,9 @@ interface Settings {
 db.defaults({
 	settings: {
 		location: {
-			longitude: '5.0241355',
-			latitude: '52.1092881',
-			location: 'De Bilt',
+			longitude: '5.0241',
+			latitude: '52.1093',
+			location: 'Vleuten',
 			country: 'NL'
 		},
 		rain: false,
@@ -46,6 +46,10 @@ const getSettings = () => db.get('settings').value();
 const setForecast = (forecast: []) => db.set('forecast', forecast).write();
 
 const getForecast = () => db.get('forecast').value();
+
+export type {
+	Settings
+}
 
 export {
 	updateSettings,

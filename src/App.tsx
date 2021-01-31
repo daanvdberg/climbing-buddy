@@ -52,8 +52,12 @@ function App() {
 
 	const [loading, setLoading] = useState(true);
 
+	const { REACT_APP_WEATHER_URL: URL, REACT_APP_WEATHER_KEY: KEY } = process.env;
+	const settings = getSettings();
+	const { latitude, longitude } = settings.location;
+
 	useEffect(() => {
-		fetch(`${process.env.REACT_APP_WEATHER_URL}?key=${process.env.REACT_APP_WEATHER_KEY}&days=14&city=Vleuten&country=NL`)
+		fetch(`${URL}?key=${KEY}&days=14&lat=${latitude}&lon=${longitude}`)
 			.then((res) => res.json())
 			.then((res) => {
 				setForecast(res.data);
