@@ -5,20 +5,18 @@ const adapter = new LocalStorage('db');
 const db = low(adapter);
 
 interface Settings {
-	location: {
-		location?: {
-			longitude: number,
-			latitude: number,
-			location: string,
-			country: string
-		},
-		rain?: boolean,
-		temperature?: {
-			min: number,
-			max: number
-		},
-		wind?: number
-	}
+	location?: {
+		longitude: number,
+		latitude: number,
+		location: string,
+		country: string
+	},
+	rain?: boolean,
+	temperature?: {
+		min: number,
+		max: number
+	},
+	wind?: number
 }
 
 db.defaults({

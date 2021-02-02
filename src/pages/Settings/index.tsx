@@ -151,7 +151,8 @@ function Settings() {
 			</form>
 
 			<div className={c.footer}>
-				Icons are courtesy of Nook Fulloption, Gregor Cresnar & Mark Roberts (via the Noun Project).
+				<p>Weather data provided by weatherbit.io</p>
+				<p>Icons are courtesy of Nook Fulloption, Gregor Cresnar & Mark Roberts (via the Noun Project).</p>
 			</div>
 
 		</div>
