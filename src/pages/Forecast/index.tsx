@@ -1,7 +1,7 @@
 import React, { createRef, RefObject, useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import { createStyles, fade, makeStyles, Theme } from '@material-ui/core/styles';
-import { TweenLite, Power1 } from 'gsap';
+import { gsap, Power1 } from 'gsap';
 import clsx from 'clsx';
 import Date from '../../components/Date';
 import ForecastDetails from '../../components/ForecastDetails';
@@ -172,9 +172,9 @@ function Forecast() {
 	const animateHero = (fromHero: HTMLDivElement, toHero: HTMLDivElement, forward = true) => {
 
 		const onComplete = () => {
-			TweenLite.set(toHero, { visibility: 'visible' });
+			gsap.set(toHero, { visibility: 'visible' });
 			if (forward) {
-				TweenLite.fromTo(toHero.querySelector('.detailsInner'), 1.5,
+				gsap.fromTo(toHero.querySelector('.detailsInner'), 1.5,
 					{ autoAlpha: 0 }, { autoAlpha: 1 });
 			}
 			body.removeChild(clone);
@@ -185,9 +185,9 @@ function Forecast() {
 		const from = calculatePosition(fromHero);
 		const to = calculatePosition(toHero);
 
-		TweenLite.set([fromHero, toHero], { visibility: 'hidden' });
-		TweenLite.set((clone as HTMLDivElement).querySelector('.detailsInner'), { visibility: 'hidden' });
-		TweenLite.set(clone, { position: 'absolute', margin: 0 });
+		gsap.set([fromHero, toHero], { visibility: 'hidden' });
+		gsap.set((clone as HTMLDivElement).querySelector('.detailsInner'), { visibility: 'hidden' });
+		gsap.set(clone, { position: 'absolute', margin: 0 });
 
 		body.appendChild(clone);
 
@@ -202,13 +202,13 @@ function Forecast() {
 			onComplete
 		};
 
-		TweenLite.set(clone, from);
+		gsap.set(clone, from);
 		if (forward) {
-			TweenLite.fromTo(clone, 0.5, { background: 'rgba(255,255,255,0)' }, { background: 'rgba(255,255,255,1)' });
+			gsap.fromTo(clone, 0.5, { background: 'rgba(255,255,255,0)' }, { background: 'rgba(255,255,255,1)' });
 		} else {
-			TweenLite.fromTo(clone, 0.5, { background: 'rgba(255,255,255,1)' }, { background: 'rgba(255,255,255,0)' });
+			gsap.fromTo(clone, 0.5, { background: 'rgba(255,255,255,1)' }, { background: 'rgba(255,255,255,0)' });
 		}
-		TweenLite.to(clone, 0.5, style);
+		gsap.to(clone, 0.5, style);
 	};
 
 	const calculatePosition = (element: HTMLElement | HTMLDivElement) => {

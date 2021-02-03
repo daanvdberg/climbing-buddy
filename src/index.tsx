@@ -9,6 +9,8 @@ import { ThemeProvider, StylesProvider, jssPreset } from '@material-ui/core/styl
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { create } from 'jss';
 import compose from 'jss-plugin-compose';
+import { gsap } from 'gsap';
+import { CSSPlugin } from 'gsap/CSSPlugin';
 import App from './App';
 import { ICONS } from './icons';
 import theme from './theme';
@@ -26,6 +28,8 @@ library.add(...ICONS);
 const jss = create({
 	plugins: [...jssPreset().plugins, compose()],
 });
+
+gsap.registerPlugin(CSSPlugin);
 
 ReactDOM.render(
 	<React.StrictMode>

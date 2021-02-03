@@ -4503,9 +4503,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"climber@workspace:.":
+"climbing_buddy@workspace:.":
   version: 0.0.0-use.local
-  resolution: "climber@workspace:."
+  resolution: "climbing_buddy@workspace:."
   dependencies:
     "@fortawesome/fontawesome-svg-core": ^1.2.34
     "@fortawesome/react-fontawesome": ^0.1.14
@@ -6737,9 +6737,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fal@file:src/assets/fa-pro-light::locator=climber%40workspace%3A.":
+"fal@file:src/assets/fa-pro-light::locator=climbing_buddy%40workspace%3A.":
   version: 5.15.2
-  resolution: "fal@file:src/assets/fa-pro-light#src/assets/fa-pro-light::hash=8b4f9b&locator=climber%40workspace%3A."
+  resolution: "fal@file:src/assets/fa-pro-light#src/assets/fa-pro-light::hash=8b4f9b&locator=climbing_buddy%40workspace%3A."
   dependencies:
     "@fortawesome/fontawesome-common-types": ^0.2.34
   checksum: 64077cac1596bcc84f1bbb12ced057ab98d0769440d47694d97e0be3b89328f32bea97bd296d6524459126ba1d5bb28289816e14b026be756117c33b2af5e805
