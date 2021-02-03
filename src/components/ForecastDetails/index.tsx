@@ -8,7 +8,7 @@ import React, { forwardRef, Ref, RefObject } from 'react';
 import { Settings } from '../../database';
 import { TriggerAnimation } from '../../pages/Forecast';
 import { msToBeaufort, parseWeatherStatus, randomizeCircularPosition } from '../../utilities';
-import Date, { Status } from '../Date';
+import Date from '../Date';
 import Icon from '../Icon';
 
 
@@ -142,9 +142,7 @@ const ForecastDetails = forwardRef<HTMLDivElement, Props>(({
 	if (!ref) {
 		return null;
 	}
-	
-	console.log(forecast);
-	
+
 	return (
 		<div ref={ref} className={c.details}>
 

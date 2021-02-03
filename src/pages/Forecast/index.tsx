@@ -1,9 +1,9 @@
 import React, { createRef, RefObject, useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
-import { createStyles, fade, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
+import { createStyles, fade, makeStyles, Theme } from '@material-ui/core/styles';
 import { TweenLite, Power1 } from 'gsap';
 import clsx from 'clsx';
-import Date, { Status } from '../../components/Date';
+import Date from '../../components/Date';
 import ForecastDetails from '../../components/ForecastDetails';
 import { getForecast, getSettings, Settings } from '../../database';
 import { parseWeatherStatus } from '../../utilities';
