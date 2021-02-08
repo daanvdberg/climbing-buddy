@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	Box,
 	Button,
@@ -10,9 +10,20 @@ import {
 	Typography
 } from '@material-ui/core';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
+import { getSettings, Settings as ISettings, updateSettings } from '../../database';
 
-const useStyles = makeStyles(({ palette, typography, spacing }: Theme) =>
+const useStyles = makeStyles(({ palette, spacing }: Theme) =>
 	createStyles({
+		loading: {
+			position: 'fixed',
+			top: '40vh',
+			right: 0,
+			bottom: '40vh',
+			left: 0,
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center'
+		},
 		root: {
 			display: 'flex',
 			flexDirection: 'column',
@@ -74,11 +85,41 @@ function Settings() {
 
 	const c = useStyles();
 
-	const [temperature, setTemperature] = React.useState<number[]>([10, 30]);
-	const [wind, setWind] = React.useState<number>(4);
+	const [rain, setRain] = useState<boolean>(false);
+	const [temperature, setTemperature] = useState<number[]>([10, 30]);
+	const [wind, setWind] = useState<ISettings['wind']>(4);
+
+	useEffect(() => {
+		refreshSettings();
+	}, []);
+
+	const refreshSettings = () => {
+		const settings = getSettings();
+		const { rain = false, temperature: { min = 10, max = 30 } = {}, wind = 4 } = settings;
+		setRain(rain);
+		setTemperature([min, max]);
+		setWind(wind);
+	}
+
+	const handleToggleRain = () => setRain((val) => !val);
 
 	const handleChangeTemperature = (event: any, newValue: number | number[]) => setTemperature(newValue as number[]);
+	
 	const handleChangeWind = (event: any, newValue: number | number[]) => setWind(newValue as number);
+	
+	const handleSubmit = () => {
+		const originalSettings = getSettings();
+		updateSettings({
+			...originalSettings,
+			rain,
+			temperature: {
+				min: temperature[0],
+				max: temperature[1]
+			},
+			wind
+		});
+		refreshSettings();
+	}
 
 	return (
 		<div className={c.root}>
@@ -92,7 +133,7 @@ function Settings() {
 						<FormGroup row>
 							<FormControlLabel
 								value='rain'
-								control={<Checkbox color='primary' />}
+								control={<Checkbox color='primary' checked={rain} onChange={handleToggleRain} />}
 								label='Rain won&apos;t stop me'
 								labelPlacement='start'
 								className={c.formControlLabel}
@@ -110,7 +151,7 @@ function Settings() {
 								defaultValue={15}
 								getAriaValueText={valuetext}
 								aria-labelledby='temp-slider'
-								step={5}
+								step={2}
 								marks={marks}
 								valueLabelDisplay='auto'
 								min={-10}
@@ -143,6 +184,7 @@ function Settings() {
 							variant='contained'
 							color='primary'
 							size='large'
+							onClick={handleSubmit}
 						>
 							Apply Settings
 						</Button>

@@ -22,14 +22,14 @@ export const randomizeCircularPosition = () => {
 }
 
 export const parseWeatherStatus = (settings: Settings, forecast: { [key: string]: any }): Status => {
-	const { rain = false, temperature = { min: 0, max: 10 }, wind = 0 } = settings;
+	const { rain = false, temperature: { min = 10, max = 30 } = {}, wind = 4 } = settings;
 	const { temp, wind_spd, pop, clouds } = forecast;
 	const speedDiff = wind - msToBeaufort(wind_spd);
 	let score = 10;
 	if (speedDiff < 0) score -= 2;
 	if (speedDiff < -2) score -= 2;
-	if ((temp - temperature.min) < 0 || (temp - temperature.max) > 0) score -= 2;
-	if ((temp - temperature.min) < -4 || (temp - temperature.max) > 4) score -= 2;
+	if ((temp - min) < 0 || (temp - max) > 0) score -= 2;
+	if ((temp - min) < -4 || (temp - max) > 4) score -= 2;
 	if (!rain && clouds > 85) score -= 2;
 	if (!rain && pop > 15) score -= 2;
 	if (!rain && pop > 40) score -= 2;

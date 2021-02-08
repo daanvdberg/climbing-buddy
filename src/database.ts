@@ -19,14 +19,16 @@ interface Settings {
 	wind?: number
 }
 
+export const defaultLocation = {
+	longitude: '5.0241',
+	latitude: '52.1093',
+	location: 'Vleuten',
+	country: 'NL'
+};
+
 db.defaults({
 	settings: {
-		location: {
-			longitude: '5.0241',
-			latitude: '52.1093',
-			location: 'Vleuten',
-			country: 'NL'
-		},
+		location: defaultLocation,
 		rain: false,
 		temperature: {
 			min: 10,
@@ -39,7 +41,7 @@ db.defaults({
 
 const updateSettings = (settings: Settings) => db.set('settings', settings).write();
 
-const getSettings = () => db.get('settings').value();
+const getSettings = (): Settings => db.get('settings').value();
 
 const setForecast = (forecast: []) => db.set('forecast', forecast).write();
 
