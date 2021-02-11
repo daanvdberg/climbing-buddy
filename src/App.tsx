@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Header from './components/Header';
-import { getSettings, setForecast } from './database';
+import { defaultLocation, getSettings, setForecast } from './database';
 import Forecast from './pages/Forecast';
 import Settings from './pages/Settings';
 
@@ -45,6 +45,10 @@ const useStyles = makeStyles(({ palette }: Theme) =>
 	})
 );
 
+// TODO
+// 1. Better local forecast
+// 2. Add location to settings
+
 function App() {
 
 	const c = useStyles();
@@ -53,9 +57,10 @@ function App() {
 
 	const { REACT_APP_WEATHER_URL: URL, REACT_APP_WEATHER_KEY: KEY } = process.env;
 	const settings = getSettings();
-	const { latitude, longitude } = settings.location;
+	const { location: { latitude, longitude } = defaultLocation } = settings;
 
 	useEffect(() => {
+
 		fetch(`${URL}?key=${KEY}&days=14&lat=${latitude}&lon=${longitude}`)
 			.then((res) => res.json())
 			.then((res) => {
